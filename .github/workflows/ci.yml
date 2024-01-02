@@ -17,15 +17,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Setup PHP ${{ matrix.php-versions }}
-      uses: shivammathur/setup-php@v3
+      uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
-    - name: Install composer and dependencies
-      run: |
-        mkdir -p bin
-        php -r "copy('https://getcomposer.org/installer', './bin/composer-setup.php');"
-        php bin/composer-setup.php --install-dir=bin --2.2 LTS
-        bin/composer.phar install
+        tools: composer, phpunit
+    - name: Install dependencies
+      run: composer install
     - name: Run the SDK testserver
       run: |
         docker run -d -p 1090:1090 friendlycaptcha/sdk-testserver:latest
@@ -41,5 +38,5 @@ jobs:
         done
     - name: Test
       run: | 
-        ./bin/composer.phar dump
-        ./vendor/bin/phpunit
+        composer dump
+        phpunit
