@@ -1,0 +1,19 @@
+name: Update Packagist
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Update packagist
+      uses: mnavarrocarter/packagist-update@v1.0
+      with:
+        username: "friendlycaptcha"
+        api_token: ${{ secrets.PACKAGIST_API_TOKEN }}
+        package_name: friendlycaptcha/sdk # No need to be explicit if you have checked out a composer.json
