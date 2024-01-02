@@ -1,0 +1,45 @@
+name: PHP SDK CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php-versions: ["7.1", "8.0", "8.4"]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup PHP ${{ matrix.php-versions }}
+      uses: shivammathur/setup-php@v3
+      with:
+        php-version: ${{ matrix.php-versions }}
+    - name: Install composer and dependencies
+      run: |
+        mkdir -p bin
+        php -r "copy('https://getcomposer.org/installer', './bin/composer-setup.php');"
+        php bin/composer-setup.php --install-dir=bin --2.2 LTS
+        bin/composer.phar install
+    - name: Run the SDK testserver
+      run: |
+        docker run -d -p 1090:1090 friendlycaptcha/sdk-testserver:latest
+        echo "SDK Test server started. Checking its health..."
+        for i in {1..20}; do
+          if curl -s http://localhost:1090; then
+            echo "SDK test server is responding!"
+            break
+          else
+            echo "Attempt $i: SDK test server not yet responding. Waiting for 1 second..."
+            sleep 1
+          fi
+        done
+    - name: Test
+      run: | 
+        ./bin/composer.phar dump
+        ./vendor/bin/phpunit
