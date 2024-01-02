@@ -26,7 +26,7 @@ function loadSDKTestsFromServer(string $serverURL)
 }
 
 
-final class ClientTest extends TestCase
+final class VerifyTest extends TestCase
 {
     public function testConfigWithoutAPIKeyThrows(): void
     {
