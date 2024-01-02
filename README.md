@@ -2,7 +2,7 @@
 
 A PHP client for the [Friendly Captcha](https://friendlycaptcha.com) service. This client allows for easy integration and verification of captcha responses with the Friendly Captcha API.
 
-> Note, this is for [Friendly Captcha v2](https://developer.friendlycaptcha.com) only.
+> Note, this is for [Friendly Captcha v2](https://developer.friendlycaptcha.com) only. This version is in preview right now, for the current version see the [documentation here](https://docs.friendlycaptcha.com).
 
 ## Installation
 
@@ -68,6 +68,7 @@ Make sure you have PHP installed (e.g. with `brew install php` on a Macbook).
 ### Install Composer
 
 ```shell
+mkdir -p bin
 php -r "copy('https://getcomposer.org/installer', './bin/composer-setup.php');"
 # You can omit `--2.2 LTS` if you are using a more recent PHP version than 7.2
 php bin/composer-setup.php --install-dir=bin --2.2 LTS
@@ -126,4 +127,4 @@ php --version
 
 ## License
 
-Open source under [MIT](./LICENSE).
+Open source under [MIT](./LICENSE). Contributions are welcome!
