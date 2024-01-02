@@ -22,7 +22,9 @@ jobs:
         php-version: ${{ matrix.php-versions }}
         tools: composer, phpunit
     - name: Install dependencies
-      run: composer install
+      run: |
+        composer update --no-interaction --no-progress --no-suggest --no-ansi --no-scripts --no-plugins --prefer-dist
+        composer install
     - name: Run the SDK testserver
       run: |
         docker run -d -p 1090:1090 friendlycaptcha/sdk-testserver:latest
