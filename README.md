@@ -1,4 +1,4 @@
-# friendly-captcha-php-sdk
+# friendly-captcha-php
 
 A PHP client for the [Friendly Captcha](https://friendlycaptcha.com) service. This client allows for easy integration and verification of captcha responses with the Friendly Captcha API.
 
