@@ -78,9 +78,6 @@ php bin/composer-setup.php --install-dir=bin --2.2 LTS
 
 ```shell
 bin/composer.phar install
-
-# Include the autoload file in your code
-require __DIR__ . '/vendor/autoload.php';
 ```
 
 ### Run the tests
