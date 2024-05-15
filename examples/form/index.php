@@ -13,9 +13,8 @@ $apikey = getenv('FRC_APIKEY');
 $siteverifyEndpoint = getenv('FRC_SITEVERIFY_ENDPOINT');
 $widgetEndpoint = getenv('FRC_WIDGET_ENDPOINT');
 
-// TODO: to be replaced with the actual SDK URL once it's published.
-const MODULE_SCRIPT_URL = "https://cdn.jsdelivr.net/npm/@friendlycaptcha/sdk@0.1.0/TODO.js";
-const NOMODULE_SCRIPT_URL = "https://cdn.jsdelivr.net/npm/@friendlycaptcha/sdk@0.1.0/TODO.js";; // Compatibility fallback for old browsers.
+const MODULE_SCRIPT_URL = "https://cdn.jsdelivr.net/npm/@friendlycaptcha/sdk@0.1.7/site.min.js";
+const NOMODULE_SCRIPT_URL = "https://cdn.jsdelivr.net/npm/@friendlycaptcha/sdk@0.1.7/site.compat.min.js";; // Compatibility fallback for old browsers.
 
 if (empty($sitekey) || empty($apikey)) {
     die("Please set the FRC_SITEKEY and FRC_APIKEY environment values before running this example.");
