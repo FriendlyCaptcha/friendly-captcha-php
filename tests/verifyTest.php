@@ -73,7 +73,7 @@ final class VerifyTest extends TestCase
 
 
 
-    public function sdkMockTestsProvider(): array
+    public static function sdkMockTestsProvider(): array
     {
         $cases = loadSDKTestsFromServer(MOCK_SERVER_URL)["tests"];
         $testCases = array();
