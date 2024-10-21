@@ -6,7 +6,7 @@ namespace FriendlyCaptcha\SDK;
 
 use FriendlyCaptcha\SDK\{ClientConfig, VerifyResult, ErrorCodes};
 
-const VERSION = "0.1.0";
+const VERSION = "0.1.1";
 const EU_API_ENDPOINT = "https://eu.frcapi.com/api/v2/captcha/siteverify";
 const GLOBAL_API_ENDPOINT = "https://global.frcapi.com/api/v2/captcha/siteverify";
 
@@ -76,7 +76,7 @@ class Client
                 'Content-Type: application/json',
                 'Content-Length: ' . strlen($payload),
                 'X-Api-Key: ' . $this->config->apiKey,
-                'X-Frc-Sdk: ' . 'friendly-captcha-php-sdk@' . VERSION
+                'Frc-Sdk: ' . 'friendly-captcha-php@' . VERSION
             )
         );
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
