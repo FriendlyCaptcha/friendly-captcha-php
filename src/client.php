@@ -6,7 +6,7 @@ namespace FriendlyCaptcha\SDK;
 
 use FriendlyCaptcha\SDK\{ClientConfig, VerifyResult, ErrorCodes};
 
-const VERSION = "0.1.1";
+const VERSION = "0.1.2";
 const EU_API_ENDPOINT = "https://eu.frcapi.com/api/v2/captcha/siteverify";
 const GLOBAL_API_ENDPOINT = "https://global.frcapi.com/api/v2/captcha/siteverify";
 
@@ -54,6 +54,11 @@ class Client
             $requestFields["sitekey"] = $this->config->sitekey;
         }
 
+        $frcSdk = 'friendly-captcha-php@' . VERSION;
+        if ($this->config->sdkTrailer != "") {
+            $frcSdk = $frcSdk . "; " . $this->config->sdkTrailer;
+        }
+
         $payload = json_encode($requestFields);
         if ($payload === false) {
             // TODO: should we put `json_last_error()` somewhere on the object?
@@ -76,7 +81,7 @@ class Client
                 'Content-Type: application/json',
                 'Content-Length: ' . strlen($payload),
                 'X-Api-Key: ' . $this->config->apiKey,
-                'Frc-Sdk: ' . 'friendly-captcha-php@' . VERSION
+                'Frc-Sdk: ' . $frcSdk,
             )
         );
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);

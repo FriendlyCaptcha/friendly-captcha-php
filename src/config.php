@@ -10,6 +10,7 @@ class ClientConfig
 {
     public $apiKey = "";
     public $sitekey = "";
+    public $sdkTrailer = "";
     public $siteverifyEndpoint = "global";
     public $strict = false;
     public $timeout = 30;
@@ -34,6 +35,21 @@ class ClientConfig
     public function setSitekey(string $sitekey): self
     {
         $this->sitekey = $sitekey;
+        return $this;
+    }
+
+    /**
+     * An "Frc-Sdk" HTTP header is sent as part of the API request to identify the SDK being used to initiate the request.
+     * A downstream SDK might depend on *this* SDK, so this function is provided to allow the downstream SDK to append an
+     * identifier to uniquely identify it. For example, this library sends an "Frc-Sdk" header of
+     * `friendly-captcha-php@1.2.3`. If `friendly-captcha-wordpress` depends on it, it can add a trailer so that requests
+     * will use an "Frc-Sdk" header of `friendly-captcha-php@1.2.3; friendly-captcha-wordpress@4.5.6`.
+     *
+     * @param string $sdk an identifier that describes the component that depends on this SDK.
+     */
+    public function setSDKTrailer(string $sdkTrailer): self
+    {
+        $this->sdkTrailer = $sdkTrailer;
         return $this;
     }
 
