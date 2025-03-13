@@ -1,8 +1,9 @@
 name: Update Packagist
 
 on:
-  push:
-    branches: [ main ]
+  release:
+    types: [ published ]
+  workflow_dispatch:
 
 jobs:
   build:
