@@ -2,7 +2,7 @@
 
 A PHP client for the [Friendly Captcha](https://friendlycaptcha.com) service. This client allows for easy integration and verification of captcha responses with the Friendly Captcha API.
 
-> Note, this is for [Friendly Captcha v2](https://developer.friendlycaptcha.com) only. This version is in preview right now, for the current version see the [documentation here](https://docs.friendlycaptcha.com).
+> Note, this is for [Friendly Captcha v2](https://developer.friendlycaptcha.com) only.
 
 ## Installation
 
