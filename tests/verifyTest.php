@@ -109,7 +109,8 @@ final class VerifyTest extends TestCase
         }
 
         // Additional checks for successful responses
-        if ($result->getResponse()->success && isset($test['siteverify_response'])) {
+        $response = $result->getResponse();
+        if ($response !== null && $response->success && isset($test['siteverify_response'])) {
             // The test data might already be an array or it might be a JSON string
             if (is_string($test['siteverify_response'])) {
                 $expectedResponse = json_decode($test['siteverify_response']);
@@ -118,8 +119,6 @@ final class VerifyTest extends TestCase
                 // Already decoded, convert array to object for consistent access
                 $expectedResponse = json_decode(json_encode($test['siteverify_response']));
             }
-
-            $response = $result->getResponse();
 
             // Check event_id if present
             if (isset($expectedResponse->data->event_id)) {

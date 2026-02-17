@@ -14,6 +14,18 @@ class VerifyResponseChallengeData
     /** @var string */
     public $origin;
 
+    /**
+     * Create an empty fallback instance with default values.
+     * Used when challenge data is missing or malformed.
+     */
+    public static function empty(): VerifyResponseChallengeData
+    {
+        $instance = new self();
+        $instance->timestamp = new DateTimeImmutable('@0');
+        $instance->origin = '';
+        return $instance;
+    }
+
     public static function fromJson($json): ?VerifyResponseChallengeData
     {
         $data = json_decode($json);
@@ -62,7 +74,11 @@ class VerifyResponseData
         }
         $instance = new self();
         $instance->event_id = $data->event_id;
-        $instance->challenge = VerifyResponseChallengeData::fromStdClass($data->challenge);
+        if (isset($data->challenge) && is_object($data->challenge)) {
+            $instance->challenge = VerifyResponseChallengeData::fromStdClass($data->challenge);
+        } else {
+            $instance->challenge = VerifyResponseChallengeData::empty();
+        }
         return $instance;
     }
 
@@ -70,7 +86,11 @@ class VerifyResponseData
     {
         $instance = new self();
         $instance->event_id = $obj->event_id;
-        $instance->challenge = VerifyResponseChallengeData::fromStdClass($obj->challenge);
+        if (isset($obj->challenge) && is_object($obj->challenge)) {
+            $instance->challenge = VerifyResponseChallengeData::fromStdClass($obj->challenge);
+        } else {
+            $instance->challenge = VerifyResponseChallengeData::empty();
+        }
         return $instance;
     }
 }
@@ -130,17 +150,17 @@ class VerifyResponse
         }
 
 
-        if (isset($d->data)) {
+        if (isset($d->data) && is_object($d->data)) {
             $instance->data = VerifyResponseData::fromStdClass($d->data);
             
             // risk_intelligence is part of the data object in the API response
-            if (isset($d->data->risk_intelligence)) {
+            if (isset($d->data->risk_intelligence) && is_object($d->data->risk_intelligence)) {
                 $instance->risk_intelligence_raw = $d->data->risk_intelligence;
                 $instance->risk_intelligence = RiskIntelligence::fromStdClass($d->data->risk_intelligence);
             }
         }
 
-        if (isset($d->error)) {
+        if (isset($d->error) && is_object($d->error)) {
             $instance->error = VerifyResponseError::fromStdClass($d->error);
         }
 

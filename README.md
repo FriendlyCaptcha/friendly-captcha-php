@@ -109,6 +109,18 @@ Time: 36 ms, Memory: 4.00 MB
 OK (28 tests, 110 assertions)
 ```
 
+## Alternative: use Docker
+You can also use Docker to run the tests without installing PHP and Composer on your machine. Make sure you have Docker installed, then run the following command in the root of the project:
+
+```shell
+docker run --rm -v $(pwd):/app -w /app --network host php:7.4-cli bash -c "
+  apt-get update -qq &&
+  apt-get install -y -qq git unzip &&
+  php bin/composer.phar install &&
+  vendor/bin/phpunit
+"
+```
+
 ### Optional
 
 Install an old version of PHP (to be sure it works in that version). The oldest PHP version this SDK supports is 7.1.
