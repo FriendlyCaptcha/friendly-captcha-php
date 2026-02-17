@@ -277,6 +277,21 @@ class Network
     /** @var NetworkAnonymization|null Anonymization service detection (null when Anonymization Detection module not enabled) */
     public $anonymization;
 
+    /**
+     * Create an empty fallback instance with default values.
+     * Used when network data is missing or malformed.
+     */
+    public static function empty(): Network
+    {
+        $instance = new self();
+        $instance->ip = '';
+        $instance->as = null;
+        $instance->geolocation = null;
+        $instance->abuse_contact = null;
+        $instance->anonymization = null;
+        return $instance;
+    }
+
     public static function fromStdClass($obj): Network
     {
         $instance = new self();
@@ -542,6 +557,24 @@ class RiskIntelligenceClient
     /** @var ClientAutomation|null Automation detection data (null when Bot Detection module not enabled) */
     public $automation;
 
+    /**
+     * Create an empty fallback instance with default values.
+     * Used when client data is missing or malformed.
+     */
+    public static function empty(): RiskIntelligenceClient
+    {
+        $instance = new self();
+        $instance->header_user_agent = '';
+        $instance->time_zone = null;
+        $instance->browser = null;
+        $instance->browser_engine = null;
+        $instance->device = null;
+        $instance->os = null;
+        $instance->tls_signature = null;
+        $instance->automation = null;
+        return $instance;
+    }
+
     public static function fromStdClass($obj): RiskIntelligenceClient
     {
         $instance = new self();
@@ -583,8 +616,8 @@ class RiskIntelligence
     {
         $instance = new self();
         $instance->risk_scores = isset($obj->risk_scores) ? RiskScores::fromStdClass($obj->risk_scores) : null;
-        $instance->network = Network::fromStdClass($obj->network);
-        $instance->client = RiskIntelligenceClient::fromStdClass($obj->client);
+        $instance->network = isset($obj->network) && is_object($obj->network) ? Network::fromStdClass($obj->network) : Network::empty();
+        $instance->client = isset($obj->client) && is_object($obj->client) ? RiskIntelligenceClient::fromStdClass($obj->client) : RiskIntelligenceClient::empty();
         return $instance;
     }
 }
