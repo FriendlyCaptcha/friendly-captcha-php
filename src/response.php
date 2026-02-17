@@ -174,7 +174,7 @@ class VerifyResponse
      * 
      * @return object|null The raw risk intelligence data, or null if not present
      */
-    public function getRawRiskIntelligence(): ?object
+    public function getRawRiskIntelligence()
     {
         return $this->risk_intelligence_raw;
     }
