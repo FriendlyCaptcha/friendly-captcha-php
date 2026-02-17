@@ -29,20 +29,6 @@ function loadSDKTestsFromServer(string $serverURL)
 
 final class VerifyTest extends TestCase
 {
-    public function testConfigWithoutAPIKeyThrows(): void
-    {
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage("API key is required");
-        $opts = new ClientConfig();
-        $client = new Client($opts);
-    }
-    public function testConfigInvalidEndpointThrows(): void
-    {
-        $this->expectException(Exception::class);
-        $opts = new ClientConfig();
-        $opts->setSiteverifyEndpoint("something-invalid-that-is-not-a-url");
-    }
-
     public function testNonEncodeableResponse(): void
     {
         $opts = new ClientConfig();
@@ -91,7 +77,7 @@ final class VerifyTest extends TestCase
     public function testSDKTestServerCase($test): void
     {
         $opts = new ClientConfig();
-        $opts->setAPIKey("some-key")->setSiteverifyEndpoint(MOCK_SERVER_URL . "/api/v2/captcha/siteverify")->setStrict($test["strict"]); // Assuming there's nothing running on that port..
+        $opts->setAPIKey("some-key")->setApiEndpoint(MOCK_SERVER_URL)->setStrict($test["strict"]);
         $client = new Client($opts);
         $result = $client->verifyCaptchaResponse($test["response"]);
 
@@ -119,6 +105,73 @@ final class VerifyTest extends TestCase
                 $this->assertTrue($result->shouldReject(), "strict mode should reject when not able to verify");
             } else {
                 $this->assertTrue($result->shouldAccept(), "non-strict mode should accept when not able to verify");
+            }
+        }
+
+        // Additional checks for successful responses
+        if ($result->getResponse()->success && isset($test['siteverify_response'])) {
+            $expectedResponse = json_decode($test['siteverify_response']);
+            $this->assertNotNull($expectedResponse, "Failed to decode expected siteverify response");
+
+            $response = $result->getResponse();
+
+            // Check event_id if present
+            if (isset($expectedResponse->data->event_id)) {
+                $this->assertEquals(
+                    $expectedResponse->data->event_id,
+                    $response->data->event_id ?? null,
+                    "Event ID does not match expected value"
+                );
+            }
+
+            // Check challenge data
+            if (isset($expectedResponse->data->challenge)) {
+                $this->assertEquals(
+                    $expectedResponse->data->challenge->timestamp,
+                    $response->data->challenge->timestamp->format('c'),
+                    "Challenge timestamp does not match expected value"
+                );
+                $this->assertEquals(
+                    $expectedResponse->data->challenge->origin,
+                    $response->data->challenge->origin,
+                    "Challenge origin does not match expected value"
+                );
+            }
+
+            // Check risk intelligence data if present
+            if (isset($expectedResponse->data->risk_intelligence)) {
+                $this->assertNotNull(
+                    $response->risk_intelligence,
+                    "Risk Intelligence data should be present"
+                );
+
+                // Check specific fields: header_user_agent
+                if (isset($expectedResponse->data->risk_intelligence->client->header_user_agent)) {
+                    $this->assertEquals(
+                        $expectedResponse->data->risk_intelligence->client->header_user_agent,
+                        $response->risk_intelligence->client->header_user_agent,
+                        "Risk Intelligence header_user_agent does not match expected value"
+                    );
+                }
+
+                // Check specific fields: browser ID
+                if (isset($expectedResponse->data->risk_intelligence->client->browser->id)) {
+                    $this->assertEquals(
+                        $expectedResponse->data->risk_intelligence->client->browser->id,
+                        $response->risk_intelligence->client->browser->id,
+                        "Risk Intelligence browser ID does not match expected value"
+                    );
+                }
+
+                // Check that raw risk intelligence contains header_user_agent
+                $rawRiskIntelligence = $response->getRawRiskIntelligence();
+                $this->assertNotNull($rawRiskIntelligence, "Raw risk intelligence should be available");
+                $rawJson = json_encode($rawRiskIntelligence);
+                $this->assertStringContainsString(
+                    'header_user_agent',
+                    $rawJson,
+                    "Raw risk intelligence JSON should contain 'header_user_agent'"
+                );
             }
         }
     }

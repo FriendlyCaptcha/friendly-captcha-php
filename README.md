@@ -25,7 +25,7 @@ $config = new ClientConfig();
 $config->setAPIKey("<YOUR API KEY>")->setSitekey("<YOUR SITEKEY (optional)>");
 
 // You can also specify which endpoint to use, for example `"global"` or `"eu"`.
-// $config->setEndpoint("eu")
+// $config->setApiEndpoint("eu")
 
 $captchaClient = new Client($config)
 ```

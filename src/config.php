@@ -11,7 +11,17 @@ class ClientConfig
     public $apiKey = "";
     public $sitekey = "";
     public $sdkTrailer = "";
+    
+    /**
+     * @deprecated Use apiEndpoint instead. This field will be removed in a future version.
+     */
     public $siteverifyEndpoint = "global";
+    
+    /**
+     * The API endpoint URL without path. Accepts shorthands "global" or "eu", or a base URL like "https://api.example.com".
+     */
+    public $apiEndpoint = "global";
+    
     public $strict = false;
     public $timeout = 30;
     public $connectTimeout = 20;
@@ -54,6 +64,7 @@ class ClientConfig
     }
 
     /**
+     * @deprecated Use setApiEndpoint instead. This method will be removed in a future version.
      * @param string $siteverifyEndpoint a full URL, or the shorthands `"global"` or `"eu"`.
      */
     public function setSiteverifyEndpoint(string $siteverifyEndpoint): self
@@ -61,7 +72,56 @@ class ClientConfig
         if ($siteverifyEndpoint != "global" && $siteverifyEndpoint != "eu" && substr($siteverifyEndpoint, 0, 4) != "http") {
             throw new Exception("Invalid argument '" . $siteverifyEndpoint . "' to setSiteverifyEndpoint, it must be a full URL or one of the shorthands 'global' or 'eu'.");
         }
+        
+        // Strip the path from the URL if it's a full URL
+        if (substr($siteverifyEndpoint, 0, 4) == "http") {
+            $parsed = parse_url($siteverifyEndpoint);
+            if ($parsed === false || !isset($parsed['scheme']) || !isset($parsed['host'])) {
+                throw new Exception("Invalid URL '" . $siteverifyEndpoint . "' provided to setSiteverifyEndpoint.");
+            }
+            $siteverifyEndpoint = $parsed['scheme'] . '://' . $parsed['host'];
+            if (isset($parsed['port'])) {
+                $siteverifyEndpoint .= ':' . $parsed['port'];
+            }
+        }
+        
         $this->siteverifyEndpoint = $siteverifyEndpoint;
+        $this->apiEndpoint = $siteverifyEndpoint;
+        return $this;
+    }
+    
+    /**
+     * Set the API endpoint URL without path.
+     * 
+     * @param string $apiEndpoint Base URL without path (e.g., "https://api.example.com") or shorthands "global" or "eu".
+     */
+    public function setApiEndpoint(string $apiEndpoint): self
+    {
+        if ($apiEndpoint != "global" && $apiEndpoint != "eu" && substr($apiEndpoint, 0, 4) != "http") {
+            throw new Exception("Invalid argument '" . $apiEndpoint . "' to setApiEndpoint, it must be a base URL (without path) or one of the shorthands 'global' or 'eu'.");
+        }
+        
+        // Validate that it's a base URL without path
+        if (substr($apiEndpoint, 0, 4) == "http") {
+            $parsed = parse_url($apiEndpoint);
+            if ($parsed === false || !isset($parsed['scheme']) || !isset($parsed['host'])) {
+                throw new Exception("Invalid URL '" . $apiEndpoint . "' provided to setApiEndpoint.");
+            }
+            
+            // Check if path is present and not just '/'
+            if (isset($parsed['path']) && $parsed['path'] !== '' && $parsed['path'] !== '/') {
+                throw new Exception("API endpoint should not include a path. Got: '" . $apiEndpoint . "'. Please use the base URL only (e.g., 'https://api.example.com').");
+            }
+            
+            // Reconstruct URL without path
+            $apiEndpoint = $parsed['scheme'] . '://' . $parsed['host'];
+            if (isset($parsed['port'])) {
+                $apiEndpoint .= ':' . $parsed['port'];
+            }
+        }
+        
+        $this->apiEndpoint = $apiEndpoint;
+        $this->siteverifyEndpoint = $apiEndpoint;
         return $this;
     }
 

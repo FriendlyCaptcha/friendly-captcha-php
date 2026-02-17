@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace FriendlyCaptcha\SDK;
 
 use DateTimeImmutable;
+use FriendlyCaptcha\SDK\RiskIntelligence;
 
 class VerifyResponseChallengeData
 {
@@ -36,6 +37,8 @@ class VerifyResponseChallengeData
 
 class VerifyResponseData
 {
+    /** @var string|null */
+    public $event_id;
     /** @var VerifyResponseChallengeData */
     public $challenge;
 
@@ -46,6 +49,7 @@ class VerifyResponseData
             return null;
         }
         $instance = new self();
+        $instance->event_id = $data->event_id ?? null;
         $instance->challenge = VerifyResponseChallengeData::fromStdClass($data->challenge);
         return $instance;
     }
@@ -53,6 +57,7 @@ class VerifyResponseData
     public static function fromStdClass($obj): VerifyResponseData
     {
         $instance = new self();
+        $instance->event_id = $obj->event_id ?? null;
         $instance->challenge = VerifyResponseChallengeData::fromStdClass($obj->challenge);
         return $instance;
     }
@@ -94,6 +99,10 @@ class VerifyResponse
     public $data;
     /** @var VerifyResponseError|null */
     public $error;
+    /** @var RiskIntelligence|null */
+    public $risk_intelligence;
+    /** @var object|null Raw untyped risk intelligence data */
+    private $risk_intelligence_raw;
 
     public static function fromJson($json): ?VerifyResponse
     {
@@ -117,6 +126,23 @@ class VerifyResponse
             $instance->error = VerifyResponseError::fromStdClass($d->error);
         }
 
+        if (isset($d->risk_intelligence)) {
+            $instance->risk_intelligence_raw = $d->risk_intelligence;
+            $instance->risk_intelligence = RiskIntelligence::fromStdClass($d->risk_intelligence);
+        }
+
         return $instance;
+    }
+
+    /**
+     * Get the raw risk intelligence data as an untyped object.
+     * This can be useful when you need access to the data in its original form
+     * or when new fields are added that aren't yet supported by the typed API.
+     * 
+     * @return object|null The raw risk intelligence data, or null if not present
+     */
+    public function getRawRiskIntelligence(): ?object
+    {
+        return $this->risk_intelligence_raw;
     }
 }

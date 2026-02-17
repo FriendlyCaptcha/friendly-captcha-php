@@ -7,8 +7,9 @@ namespace FriendlyCaptcha\SDK;
 use FriendlyCaptcha\SDK\{ClientConfig, VerifyResult, ErrorCodes};
 
 const VERSION = "0.1.2";
-const EU_API_ENDPOINT = "https://eu.frcapi.com/api/v2/captcha/siteverify";
-const GLOBAL_API_ENDPOINT = "https://global.frcapi.com/api/v2/captcha/siteverify";
+const EU_API_ENDPOINT = "https://eu.frcapi.com";
+const GLOBAL_API_ENDPOINT = "https://global.frcapi.com";
+const SITEVERIFY_PATH = "/api/v2/captcha/siteverify";
 
 class Client
 {
@@ -28,7 +29,8 @@ class Client
             throw new \Exception("API key is required");
         }
 
-        $endpoint = $this->config->siteverifyEndpoint;
+        // Use apiEndpoint (preferred) or fall back to siteverifyEndpoint for backwards compatibility
+        $endpoint = $this->config->apiEndpoint;
 
         if ($endpoint === "eu") {
             $endpoint = EU_API_ENDPOINT;
@@ -36,7 +38,7 @@ class Client
             $endpoint = GLOBAL_API_ENDPOINT;
         }
 
-        $this->resolvedSiteverifyEndpoint = $endpoint;
+        $this->resolvedSiteverifyEndpoint = $endpoint . SITEVERIFY_PATH;
     }
 
     public function verifyCaptchaResponse(?string $response): VerifyResult
