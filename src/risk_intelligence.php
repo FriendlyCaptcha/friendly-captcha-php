@@ -66,9 +66,9 @@ class RiskScores
     public static function fromStdClass($obj): RiskScores
     {
         $instance = new self();
-        $instance->overall = $obj->overall;
-        $instance->network = $obj->network;
-        $instance->browser = $obj->browser;
+        $instance->overall = $obj->overall ?? 0;
+        $instance->network = $obj->network ?? 0;
+        $instance->browser = $obj->browser ?? 0;
         return $instance;
     }
 }
@@ -108,15 +108,15 @@ class NetworkAS
     public static function fromStdClass($obj): NetworkAS
     {
         $instance = new self();
-        $instance->number = $obj->number;
-        $instance->name = $obj->name;
-        $instance->company = $obj->company;
-        $instance->description = $obj->description;
-        $instance->domain = $obj->domain;
-        $instance->country = $obj->country;
-        $instance->rir = $obj->rir;
-        $instance->route = $obj->route;
-        $instance->type = $obj->type;
+        $instance->number = $obj->number ?? 0;
+        $instance->name = $obj->name ?? '';
+        $instance->company = $obj->company ?? '';
+        $instance->description = $obj->description ?? '';
+        $instance->domain = $obj->domain ?? '';
+        $instance->country = $obj->country ?? '';
+        $instance->rir = $obj->rir ?? '';
+        $instance->route = $obj->route ?? '';
+        $instance->type = $obj->type ?? '';
         return $instance;
     }
 }
@@ -159,16 +159,16 @@ class NetworkGeolocationCountry
     public static function fromStdClass($obj): NetworkGeolocationCountry
     {
         $instance = new self();
-        $instance->iso2 = $obj->iso2;
-        $instance->iso3 = $obj->iso3;
-        $instance->name = $obj->name;
-        $instance->name_native = $obj->name_native;
-        $instance->region = $obj->region;
-        $instance->subregion = $obj->subregion;
-        $instance->currency = $obj->currency;
-        $instance->currency_name = $obj->currency_name;
-        $instance->phone_code = $obj->phone_code;
-        $instance->capital = $obj->capital;
+        $instance->iso2 = $obj->iso2 ?? '';
+        $instance->iso3 = $obj->iso3 ?? '';
+        $instance->name = $obj->name ?? '';
+        $instance->name_native = $obj->name_native ?? '';
+        $instance->region = $obj->region ?? '';
+        $instance->subregion = $obj->subregion ?? '';
+        $instance->currency = $obj->currency ?? '';
+        $instance->currency_name = $obj->currency_name ?? '';
+        $instance->phone_code = $obj->phone_code ?? '';
+        $instance->capital = $obj->capital ?? '';
         return $instance;
     }
 }
@@ -191,8 +191,8 @@ class NetworkGeolocation
     {
         $instance = new self();
         $instance->country = NetworkGeolocationCountry::fromStdClass($obj->country);
-        $instance->city = $obj->city;
-        $instance->state = $obj->state;
+        $instance->city = $obj->city ?? '';
+        $instance->state = $obj->state ?? '';
         return $instance;
     }
 }
@@ -217,10 +217,10 @@ class NetworkAbuseContact
     public static function fromStdClass($obj): NetworkAbuseContact
     {
         $instance = new self();
-        $instance->address = $obj->address;
-        $instance->name = $obj->name;
-        $instance->email = $obj->email;
-        $instance->phone = $obj->phone;
+        $instance->address = $obj->address ?? '';
+        $instance->name = $obj->name ?? '';
+        $instance->email = $obj->email ?? '';
+        $instance->phone = $obj->phone ?? '';
         return $instance;
     }
 }
@@ -245,10 +245,10 @@ class NetworkAnonymization
     public static function fromStdClass($obj): NetworkAnonymization
     {
         $instance = new self();
-        $instance->vpn_score = $obj->vpn_score;
-        $instance->proxy_score = $obj->proxy_score;
-        $instance->tor = $obj->tor;
-        $instance->icloud_private_relay = $obj->icloud_private_relay;
+        $instance->vpn_score = $obj->vpn_score ?? 0;
+        $instance->proxy_score = $obj->proxy_score ?? 0;
+        $instance->tor = $obj->tor ?? false;
+        $instance->icloud_private_relay = $obj->icloud_private_relay ?? false;
         return $instance;
     }
 }
@@ -280,7 +280,7 @@ class Network
     public static function fromStdClass($obj): Network
     {
         $instance = new self();
-        $instance->ip = $obj->ip;
+        $instance->ip = $obj->ip ?? '';
         $instance->as = isset($obj->as) ? NetworkAS::fromStdClass($obj->as) : null;
         $instance->geolocation = isset($obj->geolocation) ? NetworkGeolocation::fromStdClass($obj->geolocation) : null;
         $instance->abuse_contact = isset($obj->abuse_contact) ? NetworkAbuseContact::fromStdClass($obj->abuse_contact) : null;
@@ -303,8 +303,8 @@ class ClientTimeZone
     public static function fromStdClass($obj): ClientTimeZone
     {
         $instance = new self();
-        $instance->name = $obj->name;
-        $instance->country_iso2 = $obj->country_iso2;
+        $instance->name = $obj->name ?? '';
+        $instance->country_iso2 = $obj->country_iso2 ?? '';
         return $instance;
     }
 }
@@ -329,10 +329,10 @@ class ClientBrowser
     public static function fromStdClass($obj): ClientBrowser
     {
         $instance = new self();
-        $instance->id = $obj->id;
-        $instance->name = $obj->name;
-        $instance->version = $obj->version;
-        $instance->release_date = $obj->release_date;
+        $instance->id = $obj->id ?? '';
+        $instance->name = $obj->name ?? '';
+        $instance->version = $obj->version ?? '';
+        $instance->release_date = $obj->release_date ?? '';
         return $instance;
     }
 }
@@ -354,9 +354,9 @@ class ClientBrowserEngine
     public static function fromStdClass($obj): ClientBrowserEngine
     {
         $instance = new self();
-        $instance->id = $obj->id;
-        $instance->name = $obj->name;
-        $instance->version = $obj->version;
+        $instance->id = $obj->id ?? '';
+        $instance->name = $obj->name ?? '';
+        $instance->version = $obj->version ?? '';
         return $instance;
     }
 }
@@ -378,9 +378,9 @@ class ClientDevice
     public static function fromStdClass($obj): ClientDevice
     {
         $instance = new self();
-        $instance->type = $obj->type;
-        $instance->brand = $obj->brand;
-        $instance->model = $obj->model;
+        $instance->type = $obj->type ?? '';
+        $instance->brand = $obj->brand ?? '';
+        $instance->model = $obj->model ?? '';
         return $instance;
     }
 }
@@ -402,9 +402,9 @@ class ClientOS
     public static function fromStdClass($obj): ClientOS
     {
         $instance = new self();
-        $instance->id = $obj->id;
-        $instance->name = $obj->name;
-        $instance->version = $obj->version;
+        $instance->id = $obj->id ?? '';
+        $instance->name = $obj->name ?? '';
+        $instance->version = $obj->version ?? '';
         return $instance;
     }
 }
@@ -426,9 +426,9 @@ class ClientTLSSignature
     public static function fromStdClass($obj): ClientTLSSignature
     {
         $instance = new self();
-        $instance->ja3 = $obj->ja3;
-        $instance->ja3n = $obj->ja3n;
-        $instance->ja4 = $obj->ja4;
+        $instance->ja3 = $obj->ja3 ?? '';
+        $instance->ja3n = $obj->ja3n ?? '';
+        $instance->ja4 = $obj->ja4 ?? '';
         return $instance;
     }
 }
@@ -456,11 +456,11 @@ class ClientAutomationKnownBot
     public static function fromStdClass($obj): ClientAutomationKnownBot
     {
         $instance = new self();
-        $instance->detected = $obj->detected;
-        $instance->id = $obj->id;
-        $instance->name = $obj->name;
-        $instance->type = $obj->type;
-        $instance->url = $obj->url;
+        $instance->detected = $obj->detected ?? false;
+        $instance->id = $obj->id ?? '';
+        $instance->name = $obj->name ?? '';
+        $instance->type = $obj->type ?? '';
+        $instance->url = $obj->url ?? '';
         return $instance;
     }
 }
@@ -485,10 +485,10 @@ class ClientAutomationTool
     public static function fromStdClass($obj): ClientAutomationTool
     {
         $instance = new self();
-        $instance->detected = $obj->detected;
-        $instance->id = $obj->id;
-        $instance->name = $obj->name;
-        $instance->type = $obj->type;
+        $instance->detected = $obj->detected ?? false;
+        $instance->id = $obj->id ?? '';
+        $instance->name = $obj->name ?? '';
+        $instance->type = $obj->type ?? '';
         return $instance;
     }
 }
@@ -545,7 +545,7 @@ class RiskIntelligenceClient
     public static function fromStdClass($obj): RiskIntelligenceClient
     {
         $instance = new self();
-        $instance->header_user_agent = $obj->header_user_agent;
+        $instance->header_user_agent = $obj->header_user_agent ?? '';
         $instance->time_zone = isset($obj->time_zone) ? ClientTimeZone::fromStdClass($obj->time_zone) : null;
         $instance->browser = isset($obj->browser) ? ClientBrowser::fromStdClass($obj->browser) : null;
         $instance->browser_engine = isset($obj->browser_engine) ? ClientBrowserEngine::fromStdClass($obj->browser_engine) : null;

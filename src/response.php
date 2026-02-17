@@ -21,7 +21,13 @@ class VerifyResponseChallengeData
             return null;
         }
         $instance = new self();
-        $instance->timestamp = new DateTimeImmutable($data->timestamp);
+        try {
+            $instance->timestamp = new DateTimeImmutable($data->timestamp);
+        } catch (\Exception $e) {
+            // This should never happen - indicates malformed API response
+            error_log("Failed to parse timestamp from API response: " . $e->getMessage() . ". Using Unix epoch as fallback.");
+            $instance->timestamp = new DateTimeImmutable('@0');
+        }
         $instance->origin = $data->origin;
         return $instance;
     }
@@ -29,7 +35,13 @@ class VerifyResponseChallengeData
     public static function fromStdClass($obj): VerifyResponseChallengeData
     {
         $instance = new self();
-        $instance->timestamp = new DateTimeImmutable($obj->timestamp);
+        try {
+            $instance->timestamp = new DateTimeImmutable($obj->timestamp);
+        } catch (\Exception $e) {
+            // This should never happen - indicates malformed API response
+            error_log("Failed to parse timestamp from API response: " . $e->getMessage() . ". Using Unix epoch as fallback.");
+            $instance->timestamp = new DateTimeImmutable('@0');
+        }
         $instance->origin = $obj->origin;
         return $instance;
     }
@@ -57,7 +69,7 @@ class VerifyResponseData
     public static function fromStdClass($obj): VerifyResponseData
     {
         $instance = new self();
-        $instance->event_id = $obj->event_id ?? null;
+        $instance->event_id = $obj->event_id;
         $instance->challenge = VerifyResponseChallengeData::fromStdClass($obj->challenge);
         return $instance;
     }
