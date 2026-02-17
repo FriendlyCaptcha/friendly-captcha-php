@@ -110,8 +110,14 @@ final class VerifyTest extends TestCase
 
         // Additional checks for successful responses
         if ($result->getResponse()->success && isset($test['siteverify_response'])) {
-            $expectedResponse = json_decode($test['siteverify_response']);
-            $this->assertNotNull($expectedResponse, "Failed to decode expected siteverify response");
+            // The test data might already be an array or it might be a JSON string
+            if (is_string($test['siteverify_response'])) {
+                $expectedResponse = json_decode($test['siteverify_response']);
+                $this->assertNotNull($expectedResponse, "Failed to decode expected siteverify response");
+            } else {
+                // Already decoded, convert array to object for consistent access
+                $expectedResponse = json_decode(json_encode($test['siteverify_response']));
+            }
 
             $response = $result->getResponse();
 
@@ -126,11 +132,21 @@ final class VerifyTest extends TestCase
 
             // Check challenge data
             if (isset($expectedResponse->data->challenge)) {
+                // Verify timestamp is properly parsed as DateTimeImmutable
+                $this->assertInstanceOf(
+                    \DateTimeImmutable::class,
+                    $response->data->challenge->timestamp,
+                    "Challenge timestamp should be a DateTimeImmutable object"
+                );
+                
+                // Compare timestamps by converting both to Unix timestamps
+                $expectedTimestamp = new \DateTimeImmutable($expectedResponse->data->challenge->timestamp);
                 $this->assertEquals(
-                    $expectedResponse->data->challenge->timestamp,
-                    $response->data->challenge->timestamp->format('c'),
+                    $expectedTimestamp->getTimestamp(),
+                    $response->data->challenge->timestamp->getTimestamp(),
                     "Challenge timestamp does not match expected value"
                 );
+                
                 $this->assertEquals(
                     $expectedResponse->data->challenge->origin,
                     $response->data->challenge->origin,
@@ -167,9 +183,8 @@ final class VerifyTest extends TestCase
                 $rawRiskIntelligence = $response->getRawRiskIntelligence();
                 $this->assertNotNull($rawRiskIntelligence, "Raw risk intelligence should be available");
                 $rawJson = json_encode($rawRiskIntelligence);
-                $this->assertStringContainsString(
-                    'header_user_agent',
-                    $rawJson,
+                $this->assertTrue(
+                    strpos($rawJson, 'header_user_agent') !== false,
                     "Raw risk intelligence JSON should contain 'header_user_agent'"
                 );
             }

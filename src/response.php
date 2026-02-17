@@ -21,7 +21,7 @@ class VerifyResponseChallengeData
             return null;
         }
         $instance = new self();
-        $instance->timestamp = DateTimeImmutable::createFromFormat("c", $data->timestamp);
+        $instance->timestamp = new DateTimeImmutable($data->timestamp);
         $instance->origin = $data->origin;
         return $instance;
     }
@@ -29,7 +29,7 @@ class VerifyResponseChallengeData
     public static function fromStdClass($obj): VerifyResponseChallengeData
     {
         $instance = new self();
-        $instance->timestamp = DateTimeImmutable::createFromFormat("c", $obj->timestamp);
+        $instance->timestamp = new DateTimeImmutable($obj->timestamp);
         $instance->origin = $obj->origin;
         return $instance;
     }
@@ -37,7 +37,7 @@ class VerifyResponseChallengeData
 
 class VerifyResponseData
 {
-    /** @var string|null */
+    /** @var string */
     public $event_id;
     /** @var VerifyResponseChallengeData */
     public $challenge;
@@ -49,7 +49,7 @@ class VerifyResponseData
             return null;
         }
         $instance = new self();
-        $instance->event_id = $data->event_id ?? null;
+        $instance->event_id = $data->event_id;
         $instance->challenge = VerifyResponseChallengeData::fromStdClass($data->challenge);
         return $instance;
     }
@@ -120,15 +120,16 @@ class VerifyResponse
 
         if (isset($d->data)) {
             $instance->data = VerifyResponseData::fromStdClass($d->data);
+            
+            // risk_intelligence is part of the data object in the API response
+            if (isset($d->data->risk_intelligence)) {
+                $instance->risk_intelligence_raw = $d->data->risk_intelligence;
+                $instance->risk_intelligence = RiskIntelligence::fromStdClass($d->data->risk_intelligence);
+            }
         }
 
         if (isset($d->error)) {
             $instance->error = VerifyResponseError::fromStdClass($d->error);
-        }
-
-        if (isset($d->risk_intelligence)) {
-            $instance->risk_intelligence_raw = $d->risk_intelligence;
-            $instance->risk_intelligence = RiskIntelligence::fromStdClass($d->risk_intelligence);
         }
 
         return $instance;
