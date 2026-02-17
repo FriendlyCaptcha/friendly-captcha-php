@@ -10,11 +10,11 @@ $sitekey = getenv('FRC_SITEKEY');
 $apikey = getenv('FRC_APIKEY');
 
 // Optionally we can pass in custom endpoints to be used, such as "eu".
-$siteverifyEndpoint = getenv('FRC_SITEVERIFY_ENDPOINT');
+$apiEndpoint = getenv('FRC_API_ENDPOINT');
 $widgetEndpoint = getenv('FRC_WIDGET_ENDPOINT');
 
-const MODULE_SCRIPT_URL = "https://cdn.jsdelivr.net/npm/@friendlycaptcha/sdk@0.1.8/site.min.js";
-const NOMODULE_SCRIPT_URL = "https://cdn.jsdelivr.net/npm/@friendlycaptcha/sdk@0.1.8/site.compat.min.js";; // Compatibility fallback for old browsers.
+const MODULE_SCRIPT_URL = "https://cdn.jsdelivr.net/npm/@friendlycaptcha/sdk@0.1.37/site.min.js";
+const NOMODULE_SCRIPT_URL = "https://cdn.jsdelivr.net/npm/@friendlycaptcha/sdk@0.1.37/site.compat.min.js"; // Compatibility fallback for old browsers.
 
 if (empty($sitekey) || empty($apikey)) {
     die("Please set the FRC_SITEKEY and FRC_APIKEY environment values before running this example.");
@@ -55,8 +55,8 @@ function generateForm(bool $didSubmit, bool $captchaOK, string $sitekey)
 $config = new \FriendlyCaptcha\SDK\ClientConfig();
 $config->setAPIKey($apikey);
 $config->setSitekey($sitekey);
-if (!empty($siteverifyEndpoint)) {
-    $config->setSiteverifyEndpoint($siteverifyEndpoint); // Optional, it defaults to "global".
+if (!empty($apiEndpoint)) {
+    $config->setApiEndpoint($apiEndpoint); // Optional, it defaults to "global". Use base URL without path.
 }
 
 $frcClient = new \FriendlyCaptcha\SDK\Client($config);

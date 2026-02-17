@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace FriendlyCaptcha\SDK;
 
 use DateTimeImmutable;
+use FriendlyCaptcha\SDK\RiskIntelligence;
 
 class VerifyResponseChallengeData
 {
@@ -13,6 +14,18 @@ class VerifyResponseChallengeData
     /** @var string */
     public $origin;
 
+    /**
+     * Create an empty fallback instance with default values.
+     * Used when challenge data is missing or malformed.
+     */
+    public static function empty(): VerifyResponseChallengeData
+    {
+        $instance = new self();
+        $instance->timestamp = new DateTimeImmutable('@0');
+        $instance->origin = '';
+        return $instance;
+    }
+
     public static function fromJson($json): ?VerifyResponseChallengeData
     {
         $data = json_decode($json);
@@ -20,7 +33,13 @@ class VerifyResponseChallengeData
             return null;
         }
         $instance = new self();
-        $instance->timestamp = DateTimeImmutable::createFromFormat("c", $data->timestamp);
+        try {
+            $instance->timestamp = new DateTimeImmutable($data->timestamp);
+        } catch (\Exception $e) {
+            // This should never happen - indicates malformed API response
+            error_log("Failed to parse timestamp from API response: " . $e->getMessage() . ". Using Unix epoch as fallback.");
+            $instance->timestamp = new DateTimeImmutable('@0');
+        }
         $instance->origin = $data->origin;
         return $instance;
     }
@@ -28,7 +47,13 @@ class VerifyResponseChallengeData
     public static function fromStdClass($obj): VerifyResponseChallengeData
     {
         $instance = new self();
-        $instance->timestamp = DateTimeImmutable::createFromFormat("c", $obj->timestamp);
+        try {
+            $instance->timestamp = new DateTimeImmutable($obj->timestamp);
+        } catch (\Exception $e) {
+            // This should never happen - indicates malformed API response
+            error_log("Failed to parse timestamp from API response: " . $e->getMessage() . ". Using Unix epoch as fallback.");
+            $instance->timestamp = new DateTimeImmutable('@0');
+        }
         $instance->origin = $obj->origin;
         return $instance;
     }
@@ -36,6 +61,8 @@ class VerifyResponseChallengeData
 
 class VerifyResponseData
 {
+    /** @var string */
+    public $event_id;
     /** @var VerifyResponseChallengeData */
     public $challenge;
 
@@ -46,14 +73,24 @@ class VerifyResponseData
             return null;
         }
         $instance = new self();
-        $instance->challenge = VerifyResponseChallengeData::fromStdClass($data->challenge);
+        $instance->event_id = $data->event_id;
+        if (isset($data->challenge) && is_object($data->challenge)) {
+            $instance->challenge = VerifyResponseChallengeData::fromStdClass($data->challenge);
+        } else {
+            $instance->challenge = VerifyResponseChallengeData::empty();
+        }
         return $instance;
     }
 
     public static function fromStdClass($obj): VerifyResponseData
     {
         $instance = new self();
-        $instance->challenge = VerifyResponseChallengeData::fromStdClass($obj->challenge);
+        $instance->event_id = $obj->event_id;
+        if (isset($obj->challenge) && is_object($obj->challenge)) {
+            $instance->challenge = VerifyResponseChallengeData::fromStdClass($obj->challenge);
+        } else {
+            $instance->challenge = VerifyResponseChallengeData::empty();
+        }
         return $instance;
     }
 }
@@ -94,6 +131,10 @@ class VerifyResponse
     public $data;
     /** @var VerifyResponseError|null */
     public $error;
+    /** @var RiskIntelligence|null */
+    public $risk_intelligence;
+    /** @var object|null Raw untyped risk intelligence data */
+    private $risk_intelligence_raw;
 
     public static function fromJson($json): ?VerifyResponse
     {
@@ -109,14 +150,32 @@ class VerifyResponse
         }
 
 
-        if (isset($d->data)) {
+        if (isset($d->data) && is_object($d->data)) {
             $instance->data = VerifyResponseData::fromStdClass($d->data);
+            
+            // risk_intelligence is part of the data object in the API response
+            if (isset($d->data->risk_intelligence) && is_object($d->data->risk_intelligence)) {
+                $instance->risk_intelligence_raw = $d->data->risk_intelligence;
+                $instance->risk_intelligence = RiskIntelligence::fromStdClass($d->data->risk_intelligence);
+            }
         }
 
-        if (isset($d->error)) {
+        if (isset($d->error) && is_object($d->error)) {
             $instance->error = VerifyResponseError::fromStdClass($d->error);
         }
 
         return $instance;
+    }
+
+    /**
+     * Get the raw risk intelligence data as an untyped object.
+     * This can be useful when you need access to the data in its original form
+     * or when new fields are added that aren't yet supported by the typed API.
+     * 
+     * @return object|null The raw risk intelligence data, or null if not present
+     */
+    public function getRawRiskIntelligence()
+    {
+        return $this->risk_intelligence_raw;
     }
 }

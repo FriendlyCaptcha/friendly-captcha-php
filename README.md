@@ -25,7 +25,7 @@ $config = new ClientConfig();
 $config->setAPIKey("<YOUR API KEY>")->setSitekey("<YOUR SITEKEY (optional)>");
 
 // You can also specify which endpoint to use, for example `"global"` or `"eu"`.
-// $config->setEndpoint("eu")
+// $config->setApiEndpoint("eu")
 
 $captchaClient = new Client($config)
 ```
@@ -107,6 +107,18 @@ PHPUnit 7.0.0 by Sebastian Bergmann and contributors.
 Time: 36 ms, Memory: 4.00 MB
 
 OK (28 tests, 110 assertions)
+```
+
+## Alternative: use Docker
+You can also use Docker to run the tests without installing PHP and Composer on your machine. Make sure you have Docker installed, then run the following command in the root of the project:
+
+```shell
+docker run --rm -v $(pwd):/app -w /app --network host php:7.4-cli bash -c "
+  apt-get update -qq &&
+  apt-get install -y -qq git unzip &&
+  php bin/composer.phar install &&
+  vendor/bin/phpunit
+"
 ```
 
 ### Optional
