@@ -6,9 +6,10 @@ namespace FriendlyCaptcha\SDK;
 
 use FriendlyCaptcha\SDK\{ClientConfig, VerifyResult, ErrorCodes};
 
-const VERSION = "0.1.2";
-const EU_API_ENDPOINT = "https://eu.frcapi.com/api/v2/captcha/siteverify";
-const GLOBAL_API_ENDPOINT = "https://global.frcapi.com/api/v2/captcha/siteverify";
+const VERSION = "0.2.0";
+const EU_API_ENDPOINT = "https://eu.frcapi.com";
+const GLOBAL_API_ENDPOINT = "https://global.frcapi.com";
+const SITEVERIFY_PATH = "/api/v2/captcha/siteverify";
 
 class Client
 {
@@ -16,9 +17,9 @@ class Client
     private $config;
 
     /**
-     * @var string the resolved siteverify endpoint, with any shorthands resolved to their full URL.
+     * @var string the resolved API endpoint, with any shorthands resolved to their full URL.
      */
-    private $resolvedSiteverifyEndpoint;
+    private $resolvedApiEndpoint;
 
     public function __construct(ClientConfig $config)
     {
@@ -28,7 +29,7 @@ class Client
             throw new \Exception("API key is required");
         }
 
-        $endpoint = $this->config->siteverifyEndpoint;
+        $endpoint = $this->config->apiEndpoint ?: $this->config->siteverifyEndpoint ?: "global";
 
         if ($endpoint === "eu") {
             $endpoint = EU_API_ENDPOINT;
@@ -36,7 +37,7 @@ class Client
             $endpoint = GLOBAL_API_ENDPOINT;
         }
 
-        $this->resolvedSiteverifyEndpoint = $endpoint;
+        $this->resolvedApiEndpoint = $endpoint;
     }
 
     public function verifyCaptchaResponse(?string $response): VerifyResult
@@ -67,7 +68,7 @@ class Client
         }
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->resolvedSiteverifyEndpoint);
+        curl_setopt($ch, CURLOPT_URL, $this->resolvedApiEndpoint . SITEVERIFY_PATH);
         curl_setopt($ch, CURLOPT_POST, true);
 
         // Return response instead of outputting

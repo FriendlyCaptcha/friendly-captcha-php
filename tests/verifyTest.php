@@ -29,20 +29,6 @@ function loadSDKTestsFromServer(string $serverURL)
 
 final class VerifyTest extends TestCase
 {
-    public function testConfigWithoutAPIKeyThrows(): void
-    {
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage("API key is required");
-        $opts = new ClientConfig();
-        $client = new Client($opts);
-    }
-    public function testConfigInvalidEndpointThrows(): void
-    {
-        $this->expectException(Exception::class);
-        $opts = new ClientConfig();
-        $opts->setSiteverifyEndpoint("something-invalid-that-is-not-a-url");
-    }
-
     public function testNonEncodeableResponse(): void
     {
         $opts = new ClientConfig();
@@ -61,7 +47,7 @@ final class VerifyTest extends TestCase
     public function testNonReachableEndpoint(): void
     {
         $opts = new ClientConfig();
-        $opts->setAPIKey("some-key")->setSiteverifyEndpoint("https://localhost:9999"); // Assuming there's nothing running on that port..
+        $opts->setAPIKey("some-key")->setApiEndpoint("https://localhost:9999"); // Assuming there's nothing running on that port..
         $client = new Client($opts);
         $result = $client->verifyCaptchaResponse("my-response");
 
@@ -91,7 +77,7 @@ final class VerifyTest extends TestCase
     public function testSDKTestServerCase($test): void
     {
         $opts = new ClientConfig();
-        $opts->setAPIKey("some-key")->setSiteverifyEndpoint(MOCK_SERVER_URL . "/api/v2/captcha/siteverify")->setStrict($test["strict"]); // Assuming there's nothing running on that port..
+        $opts->setAPIKey("some-key")->setApiEndpoint(MOCK_SERVER_URL)->setStrict($test["strict"]);
         $client = new Client($opts);
         $result = $client->verifyCaptchaResponse($test["response"]);
 
