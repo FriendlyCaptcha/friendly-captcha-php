@@ -116,7 +116,7 @@ class VerifyResult
     /**
      * Get the error field from the response as was returned by the API, or null if the field is not present.
      */
-    public function getResponseError(): ?VerifyResponseError
+    public function getResponseError(): ?APIResponseError
     {
         if ($this->response === null) {
             return null;
