@@ -185,3 +185,38 @@ class RiskIntelligenceRetrieveResponseData
         return $instance;
     }
 }
+
+class RiskIntelligenceRetrieveResponse
+{
+    /** @var bool */
+    public $success;
+    /** @var RiskIntelligenceRetrieveResponseData|null */
+    public $data;
+    /** @var APIResponseError|null */
+    public $error;
+
+    public static function fromJson($json): ?RiskIntelligenceRetrieveResponse
+    {
+        $d = json_decode($json);
+        if ($d == null || !is_object($d)) {
+            return null;
+        }
+
+        $instance = new self();
+        $instance->success = false;
+        if (isset($d->success)) {
+            $instance->success = $d->success;
+        }
+
+
+        if (isset($d->data)) {
+            $instance->data = RiskIntelligenceRetrieveResponseData::fromStdClass($d->data);
+        }
+
+        if (isset($d->error)) {
+            $instance->error = APIResponseError::fromStdClass($d->error);
+        }
+
+        return $instance;
+    }
+}
