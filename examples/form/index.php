@@ -10,17 +10,17 @@ $sitekey = getenv('FRC_SITEKEY');
 $apikey = getenv('FRC_APIKEY');
 
 // Optionally we can pass in custom endpoints to be used, such as "eu".
-$siteverifyEndpoint = getenv('FRC_SITEVERIFY_ENDPOINT');
+$apiEndpoint = getenv('FRC_API_ENDPOINT');
 $widgetEndpoint = getenv('FRC_WIDGET_ENDPOINT');
 
-const MODULE_SCRIPT_URL = "https://cdn.jsdelivr.net/npm/@friendlycaptcha/sdk@0.1.8/site.min.js";
-const NOMODULE_SCRIPT_URL = "https://cdn.jsdelivr.net/npm/@friendlycaptcha/sdk@0.1.8/site.compat.min.js";; // Compatibility fallback for old browsers.
+const MODULE_SCRIPT_URL = "https://cdn.jsdelivr.net/npm/@friendlycaptcha/sdk@0.2.0/site.min.js";
+const NOMODULE_SCRIPT_URL = "https://cdn.jsdelivr.net/npm/@friendlycaptcha/sdk@0.2.0/site.compat.min.js";; // Compatibility fallback for old browsers.
 
 if (empty($sitekey) || empty($apikey)) {
     die("Please set the FRC_SITEKEY and FRC_APIKEY environment values before running this example.");
 }
 
-function generateForm(bool $didSubmit, bool $captchaOK, string $sitekey)
+function generateForm(bool $didSubmit, bool $captchaOK, string $sitekey, string $riskIntelligence)
 {
     global $widgetEndpoint;
     $html = '';
@@ -31,10 +31,12 @@ function generateForm(bool $didSubmit, bool $captchaOK, string $sitekey)
         } else {
             $html .= '<p style="color:#ba1f1f">❌ Anti-robot check failed, please try again.<br>See console output for details.</p>';
         }
+        if (!empty($riskIntelligence)) {
+            $html .= $riskIntelligence;
+        }
         $html .= '<a href=".">Back to form</a>';
-    }
-
-    if (!$didSubmit) {
+    } else {
+        $dataEndpoint = empty($widgetEndpoint) ? "" : (' data-api-endpoint="' . $widgetEndpoint . '"');
         $html .= '
         <form method="POST">
             <div class="form-group">
@@ -42,9 +44,8 @@ function generateForm(bool $didSubmit, bool $captchaOK, string $sitekey)
                 <input type="text" name="name" value="Jane Doe"><br />
                 <label>Message:</label><br />
                 <textarea name="message"></textarea><br />
-                <div class="frc-captcha"
-                  data-sitekey="' . $sitekey . '"' .
-            (isset($widgetEndpoint) ? (' data-api-endpoint="' . $widgetEndpoint . '"') : '') . '></div> 
+                <div class="frc-captcha" data-sitekey="' . $sitekey . '"' . $dataEndpoint . '></div> 
+                <div class="frc-risk-intelligence" data-sitekey="' . $sitekey . '"' . $dataEndpoint . '></div>
                 <input style="margin-top: 1em" type="submit" value="Submit">
             </div>
         </form>';
@@ -55,14 +56,16 @@ function generateForm(bool $didSubmit, bool $captchaOK, string $sitekey)
 $config = new \FriendlyCaptcha\SDK\ClientConfig();
 $config->setAPIKey($apikey);
 $config->setSitekey($sitekey);
-if (!empty($siteverifyEndpoint)) {
-    $config->setSiteverifyEndpoint($siteverifyEndpoint); // Optional, it defaults to "global".
+if (!empty($apiEndpoint)) {
+    $config->setApiEndpoint($apiEndpoint); // Optional, it defaults to "global".
 }
 
 $frcClient = new \FriendlyCaptcha\SDK\Client($config);
 
 $didSubmit = $_SERVER['REQUEST_METHOD'] === 'POST';
 $captchaOK = false;
+
+$riskIntelligence = "";
 
 if ($didSubmit) {
     $captchaResponse = isset($_POST["frc-captcha-response"]) ? $_POST["frc-captcha-response"] : null;
@@ -91,6 +94,30 @@ if ($didSubmit) {
         // In this example we will simply print the message to the console using `error_log`.
         error_log("Message submitted by \"" . $name . "\": \"" . $message . "\"");
     }
+
+    $riskIntelligenceToken = isset($_POST["frc-risk-intelligence-token"]) ? $_POST["frc-risk-intelligence-token"] : null;
+    $result = $frcClient->retrieveRiskIntelligence($riskIntelligenceToken);
+    if ($result->wasAbleToRetrieve()) {
+        if ($result->isValid()) {
+            $data = $result->getResponse()->data->risk_intelligence;
+            $riskIntelligence = '
+            <h3>Risk Intelligence Data</h3>
+            <dl>
+                <dt>Location</dt>
+                <dd>' . $data->network->geolocation->city . ', ' . $data->network->geolocation->country->name . '</dd>
+                <dt>Device</dt>
+                <dd><i>Make:</i> ' . $data->client->device->brand . '<br><i>Model:</i> ' . $data->client->device->model . '</dd>
+                <dt>Overall Risk Score</dt>
+                <dd>' . $data->risk_scores->overall . '</dd>
+            </dl>
+            ';
+        } else {
+            $error = $result->getResponseError();
+            error_log("Friendly Captcha API Error:", $error);
+        }
+    } else {
+        error_log("Failed to make the request", $result->errorCode);
+    }
 }
 ?>
 
@@ -112,7 +139,7 @@ if ($didSubmit) {
 <body>
     <main>
         <h1>PHP Form Example</h1>
-        <?php echo generateForm($didSubmit, $captchaOK, $sitekey); ?>
+        <?php echo generateForm($didSubmit, $captchaOK, $sitekey, $riskIntelligence); ?>
     </main>
 
     <script>
