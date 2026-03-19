@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 
 const MOCK_SERVER_URL = "http://localhost:1090";
 
-function loadSDKTestsFromServer(string $serverURL)
+function loadSiteverifySDKTestsFromServer(string $serverURL)
 {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $serverURL . "/api/v1/captcha/siteverifyTests");
@@ -62,7 +62,7 @@ final class VerifyTest extends TestCase
 
     public static function sdkMockTestsProvider(): array
     {
-        $cases = loadSDKTestsFromServer(MOCK_SERVER_URL)["tests"];
+        $cases = loadSiteverifySDKTestsFromServer(MOCK_SERVER_URL)["tests"];
         $testCases = array();
         foreach ($cases as $case) {
             $testCases[$case["name"]] = array($case);
