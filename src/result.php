@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace FriendlyCaptcha\SDK;
 
-use FriendlyCaptcha\SDK\VerifyResponse;
+use FriendlyCaptcha\SDK\{VerifyResponse, RiskIntelligenceRetrieveResponse};
 use Exception;
 
 class VerifyResult
@@ -145,5 +145,115 @@ class VerifyResult
             return true;
         }
         return $this->status == 200 && !$this->isRequestError() && !$this->isDecodeError();
+    }
+}
+
+/**
+ * The result of a risk intelligence retrieve request.
+ */
+class RiskIntelligenceRetrieveResult
+{
+    /** @var int The HTTP status code of the response. */
+    public $status;
+
+    /** @var RiskIntelligenceRetrieveResponse|null The response body. */
+    public $response;
+
+    /**
+     * `null` if Risk Intelligence data could be retrieved; in other words we got a 200 response.
+     * \
+     * Otherwise this will be set to one of the error codes in `ErrorCodes`:
+     * * `ErrorCodes::$RequestFailed`
+     * * `ErrorCodes::$FailedDueToClientError` (see $response->error for more details, your API key might be wrong).
+     * * `ErrorCodes::$FailedToEncodeRequest`
+     * * `ErrorCodes::$FailedToDecodeResponse`
+     *
+     * @var string|null
+     */
+    public $errorCode = null;
+
+    /**
+     * Get the response that was sent from the server.
+     * This can be null if the request to the API could not be made succesfully.
+     */
+    public function getResponse(): ?RiskIntelligenceRetrieveResponse
+    {
+        return $this->response;
+    }
+
+    /**
+     * Get the error field from the response as was returned by the API, or null if the field is not present.
+     */
+    public function getResponseError(): ?APIResponseError
+    {
+        if ($this->response === null) {
+            return null;
+        }
+        return $this->response->error;
+    }
+
+    /**
+     * Something went wrong on the client side, this generally means your configuration is wrong.
+     * Check your secrets (API key) and sitekey.
+     *
+     * See `$this->response->error` for more details.
+     */
+    public function isClientError(): bool
+    {
+        return $this->errorCode === ErrorCodes::$FailedDueToClientError;
+    }
+
+    /**
+     * Failed to encode the Risk Intelligence token.
+     */
+    public function isEncodeError(): bool
+    {
+        return $this->errorCode === ErrorCodes::$FailedToEncodeRequest;
+    }
+
+    /**
+     * Something went wrong making the request to the Friendly Captcha API, perhaps there is a network connection issue?
+     */
+    public function isRequestError(): bool
+    {
+        return $this->errorCode === ErrorCodes::$RequestFailed;
+    }
+
+    /**
+     * Something went wrong decoding the response from the Friendly Captcha API.
+     */
+    public function isDecodeError(): bool
+    {
+        return $this->errorCode === ErrorCodes::$FailedToDecodeResponse;
+    }
+
+    /**
+     * Whether the request to retrieve risk intelligence was completed. In other words: the API responded with status 200.
+     * If this is false, you should notify yourself and use `getResponseError()` to see what is wrong.
+     */
+    public function wasAbleToRetrieve(): bool
+    {
+        // If we failed to encode, we actually consider `wasAbleToRetrieve` to be true. This is because we don't want to
+        // alert on failed encoding: an attacker could send such malformed data that it fails to encode.
+        if ($this->isEncodeError()) {
+            return true;
+        }
+
+        return $this->status == 200 && !$this->isRequestError() && !$this->isDecodeError();
+    }
+
+    /**
+     * Whether the Risk Intelligence data was successfully retrieved and is valid.
+     */
+    public function isValid(): bool {
+        if ($this->wasAbleToRetrieve()) {
+            if ($this->isEncodeError()) {
+                return false;
+            }
+            if ($this->response != null) {
+                return $this->response->success;
+            }
+        }
+        return false;
     }
 }
