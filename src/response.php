@@ -62,6 +62,11 @@ class VerifyResponseData
     public $event_id;
     /** @var VerifyResponseChallengeData Information about the challenge that was solved. */
     public $challenge;
+    /**
+     * @var RiskIntelligenceData|null Risk Intelligence data about the solver of the challenge.
+     * If Risk Intelligence is not enabled for your Friendly Captcha account, this field will be null.
+     */
+    public $risk_intelligence;
 
     public static function fromJson($json): ?VerifyResponseData
     {
@@ -77,6 +82,7 @@ class VerifyResponseData
         $instance = new self();
         $instance->event_id = $obj->event_id;
         $instance->challenge = VerifyResponseChallengeData::fromStdClass($obj->challenge);
+        $instance->risk_intelligence = isset($obj->risk_intelligence) ? RiskIntelligenceData::fromStdClass($obj->risk_intelligence) : null;
         return $instance;
     }
 }
