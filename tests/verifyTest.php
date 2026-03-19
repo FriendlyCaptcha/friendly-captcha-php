@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace FriendlyCaptcha\SDK\Test;
 
-use FriendlyCaptcha\SDK\{Client, ClientConfig};
+use FriendlyCaptcha\SDK\{Client, ClientConfig, VerifyResponse};
 use Exception;
 
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -65,7 +65,7 @@ final class VerifyTest extends TestCase
         $cases = loadSDKTestsFromServer(MOCK_SERVER_URL)["tests"];
         $testCases = array();
         foreach ($cases as $case) {
-            $testCases[] = array($case);
+            $testCases[$case["name"]] = array($case);
         }
         return $testCases;
     }
@@ -107,5 +107,9 @@ final class VerifyTest extends TestCase
                 $this->assertTrue($result->shouldAccept(), "non-strict mode should accept when not able to verify");
             }
         }
+
+        $expectedResponse = VerifyResponse::fromJson(json_encode($test["siteverify_response"]));
+        $actualResponse = $result->getResponse();
+        $this->assertEquals($expectedResponse, $actualResponse);
     }
 }
