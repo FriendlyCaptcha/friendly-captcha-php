@@ -40,7 +40,7 @@ class Client
         $this->resolvedApiEndpoint = $endpoint;
     }
 
-    public function verifyCaptchaResponse(?string $response): VerifyResult
+    public function verifyCaptchaResponse(?string $response, string $sitekey = ""): VerifyResult
     {
         $verifyResult = new VerifyResult($this->config->strict);
         $verifyResult->status = -1; // So that it is always set, this will only be -1 if the request fails.
@@ -51,8 +51,8 @@ class Client
         }
         $requestFields = array("response" => $response);
     
-        if ($this->config->sitekey != "") {
-            $requestFields["sitekey"] = $this->config->sitekey;
+        if ($sitekey != "" || $this->config->sitekey != "") {
+            $requestFields["sitekey"] = $sitekey ?: $this->config->sitekey;
         }
 
         $frcSdk = 'friendly-captcha-php@' . VERSION;
