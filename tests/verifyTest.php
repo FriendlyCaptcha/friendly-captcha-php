@@ -15,7 +15,7 @@ const MOCK_SERVER_URL = "http://localhost:1090";
 function loadSDKTestsFromServer(string $serverURL)
 {
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $serverURL . "/api/v1/tests");
+    curl_setopt($ch, CURLOPT_URL, $serverURL . "/api/v1/captcha/siteverifyTests");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     $response = curl_exec($ch);
     if ($response === false) {
