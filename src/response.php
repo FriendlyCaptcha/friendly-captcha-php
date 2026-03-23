@@ -129,7 +129,7 @@ class RiskIntelligenceRetrieveTokenData
     /** @var DateTimeImmutable Timestamp when the token expires. */
     public $expires_at;
     /** @var int Number of times the token has been used. */
-    public $num_users;
+    public $num_uses;
     /** @var string The origin of the site where the token was generated. */
     public $origin;
 
