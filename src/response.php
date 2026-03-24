@@ -67,6 +67,11 @@ class VerifyResponseData
      * If Risk Intelligence is not enabled for your Friendly Captcha account, this field will be null.
      */
     public $risk_intelligence;
+    /**
+     * @var array<string, mixed>|null The raw Risk Intelligence data as an associative array.
+     * If Risk Intelligence is not enabled for your Friendly Captcha account, this field will be null.
+     */
+    public $risk_intelligence_raw;
 
     public static function fromJson($json): ?VerifyResponseData
     {
@@ -83,6 +88,7 @@ class VerifyResponseData
         $instance->event_id = $obj->event_id;
         $instance->challenge = VerifyResponseChallengeData::fromStdClass($obj->challenge);
         $instance->risk_intelligence = isset($obj->risk_intelligence) ? RiskIntelligenceData::fromStdClass($obj->risk_intelligence) : null;
+        $instance->risk_intelligence_raw = isset($obj->risk_intelligence) ? json_decode(json_encode($obj->risk_intelligence), true) : null;
         return $instance;
     }
 }
@@ -166,6 +172,8 @@ class RiskIntelligenceRetrieveResponseData
     public $token;
     /** @var RiskIntelligenceData Risk information retrieved with the provided token. */
     public $risk_intelligence;
+    /** @var array<string, mixed> The raw Risk Intelligence data as an associative array. */
+    public $risk_intelligence_raw;
 
     public static function fromJson($json): ?RiskIntelligenceRetrieveResponseData
     {
@@ -182,6 +190,7 @@ class RiskIntelligenceRetrieveResponseData
         $instance->event_id = $obj->event_id;
         $instance->token = RiskIntelligenceRetrieveTokenData::fromStdClass($obj->token);
         $instance->risk_intelligence = RiskIntelligenceData::fromStdClass($obj->risk_intelligence);
+        $instance->risk_intelligence_raw = json_decode(json_encode($obj->risk_intelligence), true);
         return $instance;
     }
 }
