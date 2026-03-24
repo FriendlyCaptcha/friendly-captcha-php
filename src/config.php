@@ -11,7 +11,8 @@ class ClientConfig
     public $apiKey = "";
     public $sitekey = "";
     public $sdkTrailer = "";
-    public $siteverifyEndpoint = "global";
+    public $apiEndpoint = "";
+    public $siteverifyEndpoint = "";
     public $strict = false;
     public $timeout = 30;
     public $connectTimeout = 20;
@@ -54,12 +55,34 @@ class ClientConfig
     }
 
     /**
-     * @param string $siteverifyEndpoint a full URL, or the shorthands `"global"` or `"eu"`.
+     * @param string $apiEndpoint a base URL (no path), or the shorthands `"global"` or `"eu"`.
+     */
+    public function setApiEndpoint(string $apiEndpoint): self
+    {
+        if ($apiEndpoint != "global" && $apiEndpoint != "eu") {
+            $parts = parse_url($apiEndpoint);
+            if ($parts === false || empty($parts["scheme"]) || empty($parts["host"])) {
+                throw new Exception("Invalid argument '" . $apiEndpoint . "' to setApiEndpoint, it must be a base URL or one of the shorthands 'global' or 'eu'.");
+            }
+            $apiEndpoint = $parts["scheme"] . "://" . $parts["host"] . (isset($parts["port"]) ? ":" . $parts["port"] : "");
+        }
+        $this->apiEndpoint = $apiEndpoint;
+        return $this;
+    }
+
+    /**
+     * @param string $siteverifyEndpoint a base URL (no path), or the shorthands `"global"` or `"eu"`.
+     *
+     * @deprecated Use `setApiEndpoint` instead. $siteverifyEndpoint will be removed in a future version.
      */
     public function setSiteverifyEndpoint(string $siteverifyEndpoint): self
     {
-        if ($siteverifyEndpoint != "global" && $siteverifyEndpoint != "eu" && substr($siteverifyEndpoint, 0, 4) != "http") {
-            throw new Exception("Invalid argument '" . $siteverifyEndpoint . "' to setSiteverifyEndpoint, it must be a full URL or one of the shorthands 'global' or 'eu'.");
+        if ($siteverifyEndpoint != "global" && $siteverifyEndpoint != "eu") {
+            $parts = parse_url($siteverifyEndpoint);
+            if ($parts === false || empty($parts["scheme"]) || empty($parts["host"])) {
+                throw new Exception("Invalid argument '" . $siteverifyEndpoint . "' to setSiteverifyEndpoint, it must be a base URL or one of the shorthands 'global' or 'eu'.");
+            }
+            $siteverifyEndpoint = $parts["scheme"] . "://" . $parts["host"] . (isset($parts["port"]) ? ":" . $parts["port"] : "");
         }
         $this->siteverifyEndpoint = $siteverifyEndpoint;
         return $this;

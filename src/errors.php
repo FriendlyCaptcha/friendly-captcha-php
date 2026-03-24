@@ -39,6 +39,15 @@ class ErrorCodes
     /** (200) The response has already been used. */
     public static $ResponseDuplicate = "response_duplicate";
 
+    /** (200) The Risk Intelligence token is invalid. */
+    public static $TokenInvalid = "token_invalid";
+
+    /** (200) The Risk Intelligence token has expired. */
+    public static $TokenExpired = "token_expired";
+
+    /** (400) The Risk Intelligence token is missing from the request. */
+    public static $TokenMissing = "token_missing";
+
     /** (400) Something else is wrong with your request, e.g. the request body was empty. */
     public static $BadRequest = "bad_request";
 }

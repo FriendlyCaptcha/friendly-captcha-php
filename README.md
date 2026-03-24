@@ -1,6 +1,6 @@
 # friendly-captcha-php
 
-A PHP client for the [Friendly Captcha](https://friendlycaptcha.com) service. This client allows for easy integration and verification of captcha responses with the Friendly Captcha API.
+A PHP client for the [Friendly Captcha](https://friendlycaptcha.com) service. This client makes it easy to connect to the Friendly Captcha API for captcha verification or [Risk Intelligence](https://developer.friendlycaptcha.com/docs/v2/risk-intelligence/) retrieval.
 
 > Note, this is for [Friendly Captcha v2](https://developer.friendlycaptcha.com) only.
 
@@ -16,7 +16,11 @@ composer require friendlycaptcha/sdk
 
 ## Usage
 
-First configure and create a SDK client
+Below are some basic examples that demonstrate how to use this SDK.
+
+For complete examples, take a look at the [examples](./examples/) directory.
+
+### Initialization
 
 ```php
 use FriendlyCaptcha\SDK\{Client, ClientConfig}
@@ -25,12 +29,12 @@ $config = new ClientConfig();
 $config->setAPIKey("<YOUR API KEY>")->setSitekey("<YOUR SITEKEY (optional)>");
 
 // You can also specify which endpoint to use, for example `"global"` or `"eu"`.
-// $config->setEndpoint("eu")
+// $config->setApiEndpoint("eu")
 
 $captchaClient = new Client($config)
 ```
 
-Then use it in the endpoint you want to protect
+### Verifying a Captcha Response
 
 ```php
 function handleLoginRequest() {
@@ -58,6 +62,38 @@ function handleLoginRequest() {
 
     // The captcha is accepted, handle the request:
     loginUser($_POST["username"], $_POST["password"]);
+}
+```
+
+### Retrieving Risk Intelligence
+
+You can retrieve [Risk Intelligence](https://developer.friendlycaptcha.com/docs/v2/risk-intelligence/) data using a token. This data provides detailed information about the risk profile of a request, including network data, geolocation, browser details, and risk scores.
+
+```php
+function getRiskIntelligence() {
+    global $frcClient;
+
+    $token = isset($_POST["frc-risk-intelligence-token"]) ? $_POST["frc-risk-intelligence-token"] : null;
+    $result = $frcClient->retrieveRiskIntelligence($token);
+
+    if ($result->wasAbleToRetrieve()) {
+        // Risk Intelligence token is valid and data was retrieved successfully.
+        if ($result->isValid()) {
+            // Token was invalid or expired. 
+            $response = $result->getResponse();
+            echo "Risk Intelligence data", $response->data;
+        } else {
+            $error = $result->getResponseError();
+            error_log("Error:", $error);
+        }
+    } else {
+        // Network issue or configuration problem.
+        if ($result->isClientError()) {
+            error_log("Configuration error - check your API key");
+        } else {
+            error_log("Network issue or service temporarily unavailable");
+        }
+    }
 }
 ```
 
@@ -111,16 +147,14 @@ OK (28 tests, 110 assertions)
 
 ### Optional
 
-Install an old version of PHP (to be sure it works in that version). The oldest PHP version this SDK supports is 7.1.
+To make sure that the SDK is backwards compatible, make sure the tests pass in PHP 7.1. We recommend using Docker.
 
-```php
-brew install shivammathur/php/php@7.1
-echo 'export PATH="/opt/homebrew/opt/php@7.1/bin:$PATH"' >> ~/.zshrc
-echo 'export PATH="/opt/homebrew/opt/php@7.1/sbin:$PATH"' >> ~/.zshrc
-
-# open a new terminal and check the new version
-php --version
+```console
+$ docker run --rm -it --network host -v $PWD:/php -w /php php:7.1-alpine /bin/sh
+/php # apk update && apk add git
 ```
+
+Then follow the steps above starting with [**Install Composer**](#install-composer). You can run `./friendly-captcha-sdk-testserver serve` outside the Docker container.
 
 ### Some features you can't use to be compatible with PHP 7.1
 
