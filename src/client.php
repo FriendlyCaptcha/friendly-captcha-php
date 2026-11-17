@@ -6,14 +6,14 @@ namespace FriendlyCaptcha\SDK;
 
 use FriendlyCaptcha\SDK\{ClientConfig, VerifyResult, RiskIntelligenceRetrieveResult, ErrorCodes};
 
-const VERSION = "0.2.1";
+const VERSION = "0.2.2";
 const EU_API_ENDPOINT = "https://eu.frcapi.com";
 const GLOBAL_API_ENDPOINT = "https://global.frcapi.com";
 const SITEVERIFY_PATH = "/api/v2/captcha/siteverify";
 const RETRIEVE_PATH = "/api/v2/riskIntelligence/retrieve";
 
 /** Real captcha responses are a few KB. Longer ones are rejected without making a request. */
-const MAX_CAPTCHA_RESPONSE_LENGTH = 64 * 1024;
+const MAX_CAPTCHA_RESPONSE_LENGTH = 1024 * 1024;
 
 class Client
 {
