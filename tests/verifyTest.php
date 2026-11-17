@@ -49,7 +49,7 @@ final class VerifyTest extends TestCase
         $opts = new ClientConfig();
         $opts->setAPIKey("some-key")->setApiEndpoint("https://localhost:9999"); // Would be a request error if a request was made.
         $client = new Client($opts);
-        $result = $client->verifyCaptchaResponse(str_repeat("A", 64 * 1024 + 1));
+        $result = $client->verifyCaptchaResponse(str_repeat("A", 1024 * 1024 + 1));
 
         $this->assertTrue($result->isResponseTooLongError());
         $this->assertFalse($result->shouldAccept());
@@ -64,7 +64,7 @@ final class VerifyTest extends TestCase
         $opts = new ClientConfig();
         $opts->setAPIKey("some-key")->setApiEndpoint("https://localhost:9999"); // Assuming there's nothing running on that port..
         $client = new Client($opts);
-        $result = $client->verifyCaptchaResponse(str_repeat("A", 64 * 1024));
+        $result = $client->verifyCaptchaResponse(str_repeat("A", 1024 * 1024));
 
         $this->assertFalse($result->isResponseTooLongError());
         $this->assertTrue($result->isRequestError());
