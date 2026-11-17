@@ -6,7 +6,7 @@ namespace FriendlyCaptcha\SDK;
 
 use FriendlyCaptcha\SDK\{ClientConfig, VerifyResult, RiskIntelligenceRetrieveResult, ErrorCodes};
 
-const VERSION = "0.2.1";
+const VERSION = "0.2.2";
 const EU_API_ENDPOINT = "https://eu.frcapi.com";
 const GLOBAL_API_ENDPOINT = "https://global.frcapi.com";
 const SITEVERIFY_PATH = "/api/v2/captcha/siteverify";
