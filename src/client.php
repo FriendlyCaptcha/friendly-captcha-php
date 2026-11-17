@@ -12,10 +12,7 @@ const GLOBAL_API_ENDPOINT = "https://global.frcapi.com";
 const SITEVERIFY_PATH = "/api/v2/captcha/siteverify";
 const RETRIEVE_PATH = "/api/v2/riskIntelligence/retrieve";
 
-/**
- * Real captcha responses are a few KB. Anything longer is rejected without making a request: it can only come
- * from an attacker trying to make the request fail (too large or too slow to upload), which non-strict mode accepts.
- */
+/** Real captcha responses are a few KB. Longer ones are rejected without making a request. */
 const MAX_CAPTCHA_RESPONSE_LENGTH = 64 * 1024;
 
 class Client
