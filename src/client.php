@@ -6,14 +6,17 @@ namespace FriendlyCaptcha\SDK;
 
 use FriendlyCaptcha\SDK\{ClientConfig, VerifyResult, RiskIntelligenceRetrieveResult, ErrorCodes};
 
-const VERSION = "0.2.2";
+const VERSION = "0.2.3";
 const EU_API_ENDPOINT = "https://eu.frcapi.com";
 const GLOBAL_API_ENDPOINT = "https://global.frcapi.com";
 const SITEVERIFY_PATH = "/api/v2/captcha/siteverify";
 const RETRIEVE_PATH = "/api/v2/riskIntelligence/retrieve";
 
-/** Real captcha responses are a few KB. Longer ones are rejected without making a request. */
-const MAX_CAPTCHA_RESPONSE_LENGTH = 1024 * 1024;
+/**
+ * Longer captcha responses are truncated to this before they are sent. It's above the API's request body limit, so
+ * the API still answers them as invalid. Truncating keeps the upload short enough to finish before the timeout.
+ */
+const MAX_CAPTCHA_RESPONSE_LENGTH = 2 * 1024 * 1024;
 
 class Client
 {
@@ -103,8 +106,7 @@ class Client
         $verifyResult->status = -1; // So that it is always set, this will only be -1 if the request fails.
 
         if ($response !== null && strlen($response) > MAX_CAPTCHA_RESPONSE_LENGTH) {
-            $verifyResult->errorCode = ErrorCodes::$ResponseTooLong;
-            return $verifyResult;
+            $response = substr($response, 0, MAX_CAPTCHA_RESPONSE_LENGTH);
         }
 
         $fields = array("response" => $response ?? "");

@@ -10,7 +10,7 @@ class ErrorCodes
     /** (-1, internal) Failed to encode request */
     public static $FailedToEncodeRequest = "failed_to_encode_request";
 
-    /** (-1, internal) The captcha response is longer than any valid response, so no request was made */
+    /** @deprecated Long captcha responses are truncated and sent to the API instead. This is never set. */
     public static $ResponseTooLong = "response_too_long";
 
     /** (-1, internal) Failed to talk to the Friendly Captcha API */
