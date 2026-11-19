@@ -25,7 +25,6 @@ class VerifyResult
      * * `ErrorCodes::$RequestFailed`
      * * `ErrorCodes::$FailedDueToClientError` (see $response->error for more details, your API key might be wrong).
      * * `ErrorCodes::$FailedToEncodeRequest`
-     * * `ErrorCodes::$ResponseTooLong`
      * * `ErrorCodes::$FailedToDecodeResponse`
      * 
      * @var string|null
@@ -46,7 +45,7 @@ class VerifyResult
     public function shouldAccept(): bool
     {
         if ($this->wasAbleToVerify()) {
-            if ($this->isEncodeError() || $this->isResponseTooLongError()) {
+            if ($this->isEncodeError()) {
                 return false;
             }
             return $this->response->success;
@@ -79,11 +78,11 @@ class VerifyResult
     }
 
     /**
-     * The captcha response was longer than any valid response. It was rejected without making a request and should never be accepted.
+     * @deprecated Long captcha responses are truncated and sent to the API instead. This always returns false.
      */
     public function isResponseTooLongError(): bool
     {
-        return $this->errorCode === ErrorCodes::$ResponseTooLong;
+        return false;
     }
 
     /**
@@ -148,8 +147,8 @@ class VerifyResult
      */
     public function wasAbleToVerify(): bool
     {
-        if ($this->isEncodeError() || $this->isResponseTooLongError()) {
-            // Despite not making the request, if the captcha response can not be encoded or is too long
+        if ($this->isEncodeError()) {
+            // Despite not being able to make the request, if we are not even able to encode the captcha response
             // we can be certain it's invalid and were thus able to verify it without even making a request.
             return true;
         }

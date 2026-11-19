@@ -44,30 +44,15 @@ final class VerifyTest extends TestCase
         $this->assertTrue($result->wasAbleToVerify());
     }
 
-    public function testTooLongResponse(): void
-    {
-        $opts = new ClientConfig();
-        $opts->setAPIKey("some-key")->setApiEndpoint("https://localhost:9999"); // Would be a request error if a request was made.
-        $client = new Client($opts);
-        $result = $client->verifyCaptchaResponse(str_repeat("A", 1024 * 1024 + 1));
-
-        $this->assertTrue($result->isResponseTooLongError());
-        $this->assertFalse($result->shouldAccept());
-        $this->assertTrue($result->wasAbleToVerify());
-        $this->assertFalse($result->isRequestError());
-        $this->assertFalse($result->isClientError());
-        $this->assertFalse($result->isEncodeError());
-    }
-
-    public function testMaxLengthResponseIsSent(): void
+    public function testTooLongResponseIsSent(): void
     {
         $opts = new ClientConfig();
         $opts->setAPIKey("some-key")->setApiEndpoint("https://localhost:9999"); // Assuming there's nothing running on that port..
         $client = new Client($opts);
-        $result = $client->verifyCaptchaResponse(str_repeat("A", 1024 * 1024));
+        $result = $client->verifyCaptchaResponse(str_repeat("A", 3 * 1024 * 1024));
 
-        $this->assertFalse($result->isResponseTooLongError());
         $this->assertTrue($result->isRequestError());
+        $this->assertFalse($result->isResponseTooLongError());
     }
 
     public function testNonReachableEndpoint(): void
